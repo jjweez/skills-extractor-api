@@ -17,7 +17,13 @@ async def extract(
 ):
     try:
         # Save uploaded file temporarily (local temp dir)
-        temp_filename = f"C:/Users/jared/AppData/Local/Temp/tmp_{uuid.uuid4()}_{file.filename}"
+#        temp_filename = f"C:/Users/jared/AppData/Local/Temp/tmp_{uuid.uuid4()}_{file.filename}"
+        import tempfile
+
+        # Use a universal temp directory that works on Windows, Mac, and Linux
+        temp_dir = tempfile.gettempdir()
+        temp_filename = os.path.join(temp_dir, f"tmp_{uuid.uuid4()}_{file.filename}")
+ 
         with open(temp_filename, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
@@ -26,7 +32,13 @@ async def extract(
 
         # Move review file back beside original, but clean the name
         review_path = result["output_file"]
-        original_dir = "C:/Users/jared/OneDrive/_PTP"
+#        original_dir = "C:/Users/jared/OneDrive/_PTP"
+        # Save output next to input if local, otherwise current working dir
+        if os.name == "nt":  # Windows
+            original_dir = "C:/Users/jared/OneDrive/_PTP"
+        else:
+            original_dir = os.getcwd()
+
 
         if os.path.exists(review_path):
             base_name = os.path.basename(file.filename)
